@@ -10,7 +10,7 @@ if not os.path.exists(output_folder):
 
 for file_name in os.listdir(input_folder):
      img=Image.open(f'{input_folder}{file_name}')
-     clean=os.path.splitext(file_name)[0]
-     img.save(f'{output_folder}{clean}.png','png')
+     split_name=os.path.splitext(file_name)[0]
+     img.save(f'{output_folder}{split_name}.png','png')
      print('ok')
      print(output_folder.format())
