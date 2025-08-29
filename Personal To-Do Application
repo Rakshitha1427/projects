@@ -1,0 +1,115 @@
+Project:Personal To-Do List Application
+import json
+import os
+
+class Task:
+    def __init__(self, title, description, category, completed=False):
+        self.title = title
+        self.description = description
+        self.category = category
+        self.completed = completed
+
+    def mark_completed(self):
+        self.completed = True
+
+    def to_dict(self):
+        return {
+            'title': self.title,
+            'description': self.description,
+            'category': self.category,
+            'completed': self.completed
+        }
+
+    @staticmethod
+    def from_dict(data):
+        return Task(
+            title=data['title'],
+            description=data['description'],
+            category=data['category'],
+            completed=data.get('completed', False)
+        )
+
+def save_tasks(tasks, filename='tasks.json'):
+    with open(filename, 'w') as f:
+        json.dump([task.to_dict() for task in tasks], f, indent=4)
+
+def load_tasks(filename='tasks.json'):
+    if not os.path.exists(filename):
+        return []
+    with open(filename, 'r') as f:
+        data = json.load(f)
+        return [Task.from_dict(item) for item in data]
+
+def add_task(tasks):
+    title = input("Task Title: ").strip()
+    description = input("Task Description: ").strip()
+    category = input("Category (e.g., Work, Personal, Urgent): ").strip()
+    tasks.append(Task(title, description, category))
+    print("Task has been successfully added.\n")
+
+def display_tasks(tasks):
+    if not tasks:
+        print("No tasks to display.\n")
+        return
+    print("\nYour Current Task List:")
+    for idx, task in enumerate(tasks, start=1):
+        status = "Completed" if task.completed else "Pending"
+        print(f"{idx}. [{status}] {task.title} ({task.category})")
+        print(f"    Details: {task.description}")
+    print()
+
+def mark_task_completed(tasks):
+    display_tasks(tasks)
+    if not tasks:
+        return
+    idx = input("Enter the task number to set as completed: ").strip()
+    if not idx.isdigit() or not (1 <= int(idx) <= len(tasks)):
+        print("Invalid selection. Please choose a valid task number.\n")
+        return
+    tasks[int(idx)-1].mark_completed()
+    print("Status updated: Task marked as completed.\n")
+
+def delete_task(tasks):
+    display_tasks(tasks)
+    if not tasks:
+        return
+    idx = input("Enter the task number to remove: ").strip()
+    if not idx.isdigit() or not (1 <= int(idx) <= len(tasks)):
+        print("Invalid selection. Please choose a valid task number.\n")
+        return
+    removed = tasks.pop(int(idx)-1)
+    print(f"Task '{removed.title}' has been deleted.\n")
+
+def main():
+    tasks = load_tasks()
+    menu = (
+        "--------------------------\n"
+        "        TO-DO MENU        \n"
+        "--------------------------\n"
+        "1. Add a New Task\n"
+        "2. View All Tasks\n"
+        "3. Mark Task as Completed\n"
+        "4. Delete a Task\n"
+        "5. Save & Exit\n"
+    )
+    while True:
+        print(menu)
+        choice = input("Select an option (1-5): ").strip()
+        if choice == '1':
+            add_task(tasks)
+        elif choice == '2':
+            display_tasks(tasks)
+        elif choice == '3':
+            mark_task_completed(tasks)
+        elif choice == '4':
+            delete_task(tasks)
+        elif choice == '5':
+            save_tasks(tasks)
+            print("All tasks have been saved. Exiting application.")
+            break
+        else:
+            print("Invalid option selected. Please enter a number between 1 and 5.\n")
+
+if __name__ == "__main__":
+    main()
+
